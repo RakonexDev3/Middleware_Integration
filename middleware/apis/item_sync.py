@@ -2,17 +2,27 @@ import frappe
 import requests
 
 
-settings = frappe.get_single("Middleware External Settings")
+def get_middleware_settings():
+    settings = frappe.get_cached_doc("Middleware External Settings")
 
-ENDPOINT = settings.endpoint
+    if not settings.enable_product_sync:
+        return None
 
-HEADERS = {
-    "Content-Type": "application/json",
-    "Authorization": f"Bearer {settings.get_password('authorization_token')}"
-}
+    if not settings.endpoint:
+        frappe.msgprint("Please configure the Endpoint in Middleware External Settings.")
+        return None
+
+    if not settings.get_password("authorization_token"):
+        frappe.msgprint("Please configure the Authorization Token in Middleware External Settings.")
+        return None
+
+    return settings
 
 
 def item_created(doc, method):
+    if not get_middleware_settings():
+        return
+    
     frappe.enqueue(
         "middleware.apis.item_sync.sync_item",
         data={
@@ -28,6 +38,9 @@ def item_updated(doc, method):
     if doc.creation == doc.modified:
         return
     
+    if not get_middleware_settings():
+        return
+    
     frappe.enqueue(
         "middleware.apis.item_sync.sync_item",
         data={
@@ -40,6 +53,9 @@ def item_updated(doc, method):
 
 
 def item_deleted(doc, method):
+    if not get_middleware_settings():
+        return
+    
     frappe.enqueue(
         "middleware.apis.item_sync.sync_item_delete",
         item_code=doc.item_code,
@@ -50,6 +66,17 @@ def item_deleted(doc, method):
 
 def sync_item(data):
     try:
+        settings = get_middleware_settings()
+        if not settings:
+            return
+        
+        token = settings.get_password("authorization_token")
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+        
         item_code = data["item_code"]
         event = data["event"]
 
@@ -58,9 +85,9 @@ def sync_item(data):
         payload = build_payload(doc, event)
 
         response = requests.post(
-            ENDPOINT,
+            settings.endpoint,
             json=payload,
-            headers=HEADERS,
+            headers=headers,
             timeout=30
         )
 
@@ -79,15 +106,26 @@ def sync_item(data):
 
 def sync_item_delete(item_code):
     try:
+        settings = get_middleware_settings()
+        if not settings:
+            return
+        
+        token = settings.get_password("authorization_token")
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}"
+        }
+
         payload = {
             "event": "delete",
             "item_code": item_code
         }
 
         response = requests.post(
-            ENDPOINT,
+            settings.endpoint,
             json=payload,
-            headers=HEADERS,
+            headers=headers,
             timeout=30
         )
 
