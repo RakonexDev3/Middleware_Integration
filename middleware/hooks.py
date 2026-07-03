@@ -150,13 +150,13 @@ fixtures = [
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Item": {
+        "after_insert": "middleware.apis.item_sync.item_created",
+        "on_update": "middleware.apis.item_sync.item_updated",
+        "on_trash": "middleware.apis.item_sync.item_deleted"
+    }
+}
 
 # Scheduled Tasks
 # ---------------
