@@ -5,6 +5,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "enable_product_sync",
   "endpoint",
   "authorization_token"
  ],
@@ -22,13 +23,19 @@
    "in_list_view": 1,
    "label": "Authorization Token",
    "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_product_sync",
+   "fieldtype": "Check",
+   "label": "Enable Product Sync"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-03 12:36:22.087374",
+ "modified": "2026-07-03 15:55:39.769139",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware External Settings",
