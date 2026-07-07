@@ -13,7 +13,21 @@ fixtures = [
         "doctype": "Custom Field",
         "filters": {
             "dt": "Item",
-            "fieldname": ["in", ["arabic_title", "material", "recommended_age", "specification", "dimensions", "product_weight", "column_break_spec", "package_dimensions", "package_weight"]]
+            "fieldname": [
+                "in",
+                [
+                    "arabic_title",
+                    "material",
+                    "recommended_age",
+                    "specification",
+                    "dimensions",
+                    "product_weight",
+                    "column_break_spec",
+                    "package_dimensions",
+                    "package_weight",
+                    "enable_product_sync"
+                ]
+            ]
         }
     }
 ]
