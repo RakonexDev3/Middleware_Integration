@@ -7,21 +7,23 @@
  "field_order": [
   "enable_product_sync",
   "endpoint",
-  "authorization_token"
+  "authorization_token",
+  "bulk_sync_endpoint",
+  "bulk_sync_authorization_token"
  ],
  "fields": [
   {
    "fieldname": "endpoint",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Endpoint",
+   "label": "Item Sync Endpoint",
    "mandatory_depends_on": "eval:doc.enable_product_sync"
   },
   {
    "fieldname": "authorization_token",
    "fieldtype": "Password",
    "in_list_view": 1,
-   "label": "Authorization Token",
+   "label": "Item Sync Authorization Token",
    "mandatory_depends_on": "eval:doc.enable_product_sync"
   },
   {
@@ -29,13 +31,25 @@
    "fieldname": "enable_product_sync",
    "fieldtype": "Check",
    "label": "Enable Product Sync"
+  },
+  {
+   "fieldname": "bulk_sync_endpoint",
+   "fieldtype": "Data",
+   "label": "Bulk Sync Endpoint",
+   "mandatory_depends_on": "eval:doc.enable_product_sync"
+  },
+  {
+   "fieldname": "bulk_sync_authorization_token",
+   "fieldtype": "Password",
+   "label": "Bulk Sync Authorization Token",
+   "mandatory_depends_on": "eval:doc.enable_product_sync"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-07 09:55:54.395190",
+ "modified": "2026-07-07 18:03:02.147588",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware External Settings",
