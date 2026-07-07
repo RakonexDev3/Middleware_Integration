@@ -14,6 +14,9 @@ class MiddlewareSyncLog(Document):
 def retry_sync(log_name):
     log = frappe.get_doc("Middleware Sync Log", log_name)
 
+    if log.status == "Success":
+        return {"queued": False}
+
     log.status = "Pending"
     log.retry_count = (log.retry_count or 0) + 1
     log.sync_time = now_datetime()
@@ -41,4 +44,4 @@ def retry_sync(log_name):
             enqueue_after_commit=True
         )
 
-    frappe.msgprint("Sync request queued successfully.")
+    return {"queued": True}
