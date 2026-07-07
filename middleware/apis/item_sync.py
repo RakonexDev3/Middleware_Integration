@@ -119,7 +119,9 @@ def sync_item_delete(item_code):
 
         payload = {
             "event": "delete",
-            "item_code": item_code
+            "item": {
+                "SKU": item_code
+            }
         }
 
         response = requests.post(
@@ -149,6 +151,7 @@ def build_payload(doc, event):
             "SKU": doc.item_code,
             "product_title": doc.item_name,
             "arabic_title": doc.arabic_title,
+            "product_category": doc.item_group,
             "body_html": doc.description,
             "brand": doc.brand,
             "status": "inactive" if doc.disabled else "active",
