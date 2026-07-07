@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-07-03 11:53:52.371307",
+ "creation": "2026-07-03 15:56:45.634406",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -15,14 +15,14 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Endpoint",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.enable_product_sync"
   },
   {
    "fieldname": "authorization_token",
    "fieldtype": "Password",
    "in_list_view": 1,
    "label": "Authorization Token",
-   "reqd": 1
+   "mandatory_depends_on": "eval:doc.enable_product_sync"
   },
   {
    "default": "1",
@@ -35,11 +35,11 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-03 15:55:39.769139",
+ "modified": "2026-07-07 09:55:54.395190",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware External Settings",
- "owner": "dev4@rakonex.com",
+ "owner": "Administrator",
  "permissions": [
   {
    "create": 1,
@@ -48,6 +48,16 @@
    "print": 1,
    "read": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Administrator",
    "share": 1,
    "write": 1
   }
