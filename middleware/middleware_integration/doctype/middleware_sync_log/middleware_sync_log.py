@@ -21,13 +21,22 @@ def retry_sync(log_name):
     log.retry_count = (log.retry_count or 0) + 1
     log.sync_time = now_datetime()
     log.response_message = ""
-    log.error_message = ""
     log.save(ignore_permissions=True)
 
-    if log.event == "delete":
+    if log.sync_method == "Bulk Import":
+        items = [row.document for row in log.documents if row.document]
+
+        frappe.enqueue(
+            "middleware.apis.bulk_item_sync.process_bulk_sync",
+            items=items,
+            log_name=log.name,
+            queue="long",
+            enqueue_after_commit=True
+        )
+    elif log.event == "delete":
         frappe.enqueue(
             "middleware.apis.item_sync.sync_item_delete",
-            item_code=log.item_code,
+            item_code=log.document,
             log_name=log.name,
             queue="short",
             enqueue_after_commit=True
@@ -36,7 +45,7 @@ def retry_sync(log_name):
         frappe.enqueue(
             "middleware.apis.item_sync.sync_item",
             data={
-                "item_code": log.item_code,
+                "item_code": log.document,
                 "event": log.event
             },
             log_name=log.name,
