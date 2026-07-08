@@ -5,14 +5,17 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "item_code",
   "event",
+  "document_type",
+  "document",
+  "sync_method",
   "response_message",
   "column_break_aehc",
   "status",
   "retry_count",
   "sync_time",
-  "error_message"
+  "section_break_xyqy",
+  "documents"
  ],
  "fields": [
   {
@@ -34,19 +37,6 @@
    "options": "Pending\nSuccess\nFailed"
   },
   {
-   "depends_on": "eval:doc.status==\"Failed\"",
-   "fieldname": "error_message",
-   "fieldtype": "Small Text",
-   "label": "Error Message"
-  },
-  {
-   "fetch_from": "item.item_code",
-   "fieldname": "item_code",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Item Code"
-  },
-  {
    "fieldname": "response_message",
    "fieldtype": "Small Text",
    "label": "Response Message"
@@ -60,12 +50,42 @@
    "fieldname": "sync_time",
    "fieldtype": "Datetime",
    "label": "Sync Time"
+  },
+  {
+   "fieldname": "section_break_xyqy",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "label": "Document Type",
+   "options": "DocType"
+  },
+  {
+   "depends_on": "eval:doc.sync_method==\"Single Document\"",
+   "fieldname": "document",
+   "fieldtype": "Data",
+   "label": "Document"
+  },
+  {
+   "depends_on": "eval:doc.sync_method==\"Bulk Import\"",
+   "fieldname": "documents",
+   "fieldtype": "Table",
+   "label": "Documents",
+   "options": "Middleware Sync Log Document"
+  },
+  {
+   "fieldname": "sync_method",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Sync Method",
+   "options": "Single Document\nBulk Import"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-07 12:52:17.517732",
+ "modified": "2026-07-08 11:32:28.531565",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware Sync Log",

@@ -122,7 +122,6 @@ def sync_item(data, log_name=None):
             log,
             "Failed",
             response=response.text,
-            error=frappe.get_traceback()
         )
 
         frappe.log_error(
@@ -183,7 +182,6 @@ def sync_item_delete(item_code, log_name=None):
             log,
             "Failed",
             response=response.text,
-            error=frappe.get_traceback()
         )
 
         frappe.log_error(
@@ -199,8 +197,10 @@ def sync_item_delete(item_code, log_name=None):
 def create_sync_log(item_code, event):
     log = frappe.get_doc({
         "doctype": "Middleware Sync Log",
-        "item_code": item_code,
+        "document_type": "Item",
+        "document": item_code,
         "event": event,
+        "sync_method": "Single Document",
         "status": "Pending"
     })
 
@@ -209,15 +209,12 @@ def create_sync_log(item_code, event):
     return log
 
 
-def update_sync_log(log, status, response=None, error=None):
+def update_sync_log(log, status, response=None):
     log.status = status
     log.sync_time = now_datetime()
 
     if response:
         log.response_message = response
-
-    if error:
-        log.error_message = error
 
     log.save(ignore_permissions=True)
 
