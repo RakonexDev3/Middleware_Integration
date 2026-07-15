@@ -23,7 +23,7 @@ def retry_sync(log_name):
     log.response_message = ""
     log.save(ignore_permissions=True)
 
-    if log.sync_method == "Bulk Import":
+    if log.sync_type == "Bulk Import":
         items = [row.document for row in log.documents if row.document]
 
         frappe.enqueue(
@@ -31,14 +31,6 @@ def retry_sync(log_name):
             items=items,
             log_name=log.name,
             queue="long",
-            enqueue_after_commit=True
-        )
-    elif log.event == "delete":
-        frappe.enqueue(
-            "middleware.apis.item_sync.sync_item_delete",
-            item_code=log.document,
-            log_name=log.name,
-            queue="short",
             enqueue_after_commit=True
         )
     else:
