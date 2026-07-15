@@ -1,30 +1,18 @@
 import frappe
 import requests
 from frappe.utils import now_datetime
-
-
-def get_middleware_settings():
-    settings = frappe.get_cached_doc("Middleware External Settings")
-
-    if not settings.enable_product_sync:
-        return None
-
-    if not settings.endpoint:
-        frappe.msgprint("Please configure the Endpoint in Middleware External Settings.")
-        return None
-
-    if not settings.get_password("authorization_token"):
-        frappe.msgprint("Please configure the Authorization Token in Middleware External Settings.")
-        return None
-
-    return settings
+from middleware.utils import get_middleware_settings
 
 
 def item_created(doc, method):
-    if not get_middleware_settings():
+    settings = get_middleware_settings(
+        endpoint="item_sync_endpoint",
+        token="item_sync_authorization_token"
+    )
+    if not settings:
         return
     
-    if not doc.enable_product_sync:
+    if not doc.enable_product_sync or doc.has_variants:
         return
     
     frappe.enqueue(
@@ -42,10 +30,14 @@ def item_updated(doc, method):
     if doc.creation == doc.modified:
         return
     
-    if not get_middleware_settings():
+    settings = get_middleware_settings(
+        endpoint="item_sync_endpoint",
+        token="item_sync_authorization_token"
+    )
+    if not settings:
         return
     
-    if not doc.enable_product_sync:
+    if not doc.enable_product_sync or doc.has_variants:
         return
     
     frappe.enqueue(
@@ -60,50 +52,72 @@ def item_updated(doc, method):
 
 
 def item_deleted(doc, method):
-    if not get_middleware_settings():
+    settings = get_middleware_settings(
+        endpoint="item_sync_endpoint",
+        token="item_sync_authorization_token"
+    )
+    if not settings:
         return
 
-    if not doc.enable_product_sync:
+    if not doc.enable_product_sync or doc.has_variants:
         return
     
     frappe.enqueue(
-        "middleware.apis.item_sync.sync_item_delete",
-        item_code=doc.item_code,
+        "middleware.apis.item_sync.sync_item",
+        data={
+            "item_code": doc.item_code,
+            "event": "delete",
+            "is_variant": bool(doc.variant_of)
+        },
         queue="short",
         enqueue_after_commit=True
     )
 
 
 def sync_item(data, log_name=None):
-    settings = get_middleware_settings()
-    if not settings:
-        return
+    settings = get_middleware_settings(
+        endpoint="item_sync_endpoint",
+        token="item_sync_authorization_token"
+    )
     
     item_code = data["item_code"]
     event = data["event"]
 
-    doc = frappe.get_doc("Item", item_code)
-
     if log_name:
         log = frappe.get_doc("Middleware Sync Log", log_name)
     else:
-        log = create_sync_log(
-            doc.item_code,
-            event
-        )
+        if event == "delete":
+            is_variant = data.get("is_variant", False)
+        else:
+            is_variant = bool(frappe.db.get_value("Item", item_code, "variant_of"))
+
+        log = create_sync_log(item_code, event, is_variant=is_variant)
     
-    token = settings.get_password("authorization_token")
+    endpoint = settings.get("item_sync_endpoint")
+    token = settings.get_password("item_sync_authorization_token")
 
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {token}"
     }
 
-    payload = build_payload(doc, event)
+    if event == "delete":
+        payload = {
+            "event": "delete",
+            "item": {
+                "SKU": item_code,
+                "is_variant": bool(log.is_variant)
+            }
+        }
+    else:
+        doc = frappe.get_doc("Item", item_code)
+        payload = build_payload(doc, event)
+
+    response = None
 
     try:
         response = requests.post(
-            settings.endpoint,
+            endpoint,
             json=payload,
             headers=headers,
             timeout=30
@@ -111,18 +125,10 @@ def sync_item(data, log_name=None):
 
         response.raise_for_status()
 
-        update_sync_log(
-            log,
-            "Success",
-            response=response.text
-        )
+        update_sync_log(log, "Success", response=response.text)
 
     except Exception:
-        update_sync_log(
-            log,
-            "Failed",
-            response=response.text,
-        )
+        update_sync_log(log, "Failed", response=response.text if response else frappe.get_traceback())
 
         frappe.log_error(
             title=f"Item {event.capitalize()} Sync Failed",
@@ -134,73 +140,14 @@ def sync_item(data, log_name=None):
         )
 
 
-def sync_item_delete(item_code, log_name=None):
-    settings = get_middleware_settings()
-    if not settings:
-        return
-    
-    if log_name:
-        log = frappe.get_doc("Middleware Sync Log", log_name)
-    else:
-        log = create_sync_log(
-            item_code,
-            "delete"
-        )
-    
-    token = settings.get_password("authorization_token")
-
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {token}"
-    }
-
-    payload = {
-        "event": "delete",
-        "item": {
-            "SKU": item_code
-        }
-    }
-
-    try:
-        response = requests.post(
-            settings.endpoint,
-            json=payload,
-            headers=headers,
-            timeout=30
-        )
-
-        response.raise_for_status()
-
-        update_sync_log(
-            log,
-            "Success",
-            response=response.text
-        )
-
-    except Exception:
-        update_sync_log(
-            log,
-            "Failed",
-            response=response.text,
-        )
-
-        frappe.log_error(
-            title="Item Delete Sync Failed",
-            message=f"""
-                Status: {response.status_code}
-                Response: {response.text}
-                {frappe.get_traceback()}
-                """
-        )
-
-
-def create_sync_log(item_code, event):
+def create_sync_log(item_code, event, is_variant=False):
     log = frappe.get_doc({
         "doctype": "Middleware Sync Log",
         "document_type": "Item",
         "document": item_code,
         "event": event,
-        "sync_method": "Single Document",
+        "sync_type": "Single Document",
+        "is_variant": is_variant,
         "status": "Pending"
     })
 
@@ -220,31 +167,42 @@ def update_sync_log(log, status, response=None):
 
 
 def build_payload(doc, event):
+    attributes = []
+
+    if doc.variant_of:
+        template = frappe.get_doc("Item", doc.variant_of)
+
+        for row in doc.attributes:
+            attributes.append({
+                "attribute": row.attribute,
+                "value": row.attribute_value
+            })
+    
     return {
         "event": event,
         "item": {
             "SKU": doc.item_code,
+            "is_variant": bool(doc.variant_of),
+            "parent_sku": doc.variant_of,
+            "parent_title": template.item_name if doc.variant_of else None,
+            "parent_body_html": template.description if doc.variant_of else None,
+
             "product_title": doc.item_name,
             "arabic_title": doc.arabic_title,
             "product_category": doc.item_group,
-            "body_html": doc.description,
+            "product_body_html": doc.description,
             "brand": doc.brand,
             "status": "inactive" if doc.disabled else "active",
 
             "default_uom": doc.stock_uom,
-
             "selling_price": get_selling_price(doc.item_code),
-
             "recommended_age": doc.recommended_age,
-
             "material": doc.material,
-
             "dimensions": doc.dimensions,
-
             "product_weight": doc.product_weight,
-
             "package_dimensions": doc.package_dimensions,
             "package_weight": doc.package_weight,
+            "attributes": attributes
         }
     }
 
