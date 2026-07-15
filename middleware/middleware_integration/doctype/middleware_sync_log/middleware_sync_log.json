@@ -8,12 +8,13 @@
   "event",
   "document_type",
   "document",
-  "sync_method",
+  "sync_type",
   "response_message",
   "column_break_aehc",
   "status",
   "retry_count",
   "sync_time",
+  "is_variant",
   "section_break_xyqy",
   "documents"
  ],
@@ -62,30 +63,37 @@
    "options": "DocType"
   },
   {
-   "depends_on": "eval:doc.sync_method==\"Single Document\"",
+   "depends_on": "eval:doc.sync_type==\"Single Document\"",
    "fieldname": "document",
    "fieldtype": "Data",
    "label": "Document"
   },
   {
-   "depends_on": "eval:doc.sync_method==\"Bulk Import\"",
+   "depends_on": "eval:doc.sync_type==\"Bulk Import\"",
    "fieldname": "documents",
    "fieldtype": "Table",
    "label": "Documents",
    "options": "Middleware Sync Log Document"
   },
   {
-   "fieldname": "sync_method",
+   "fieldname": "sync_type",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Sync Method",
+   "label": "Sync Type",
    "options": "Single Document\nBulk Import"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.document_type==\"Item\" && doc.sync_type==\"Single Document\"",
+   "fieldname": "is_variant",
+   "fieldtype": "Check",
+   "label": "Is Variant"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-08 11:32:28.531565",
+ "modified": "2026-07-10 14:42:30.008455",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware Sync Log",

@@ -6,26 +6,12 @@
  "engine": "InnoDB",
  "field_order": [
   "enable_product_sync",
-  "endpoint",
-  "authorization_token",
+  "item_sync_endpoint",
+  "item_sync_authorization_token",
   "bulk_sync_endpoint",
   "bulk_sync_authorization_token"
  ],
  "fields": [
-  {
-   "fieldname": "endpoint",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Item Sync Endpoint",
-   "mandatory_depends_on": "eval:doc.enable_product_sync"
-  },
-  {
-   "fieldname": "authorization_token",
-   "fieldtype": "Password",
-   "in_list_view": 1,
-   "label": "Item Sync Authorization Token",
-   "mandatory_depends_on": "eval:doc.enable_product_sync"
-  },
   {
    "default": "1",
    "fieldname": "enable_product_sync",
@@ -43,13 +29,27 @@
    "fieldtype": "Password",
    "label": "Bulk Sync Authorization Token",
    "mandatory_depends_on": "eval:doc.enable_product_sync"
+  },
+  {
+   "fieldname": "item_sync_endpoint",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Sync Endpoint",
+   "mandatory_depends_on": "eval:doc.enable_product_sync"
+  },
+  {
+   "fieldname": "item_sync_authorization_token",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Item Sync Authorization Token",
+   "mandatory_depends_on": "eval:doc.enable_product_sync"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-07 18:03:02.147588",
+ "modified": "2026-07-13 11:53:16.353942",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware External Settings",
