@@ -28,29 +28,34 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Event",
-   "options": "create\nupdate\ndelete"
+   "options": "create\nupdate\ndelete",
+   "read_only": 1
   },
   {
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Pending\nSuccess\nFailed"
+   "options": "Pending\nSuccess\nFailed",
+   "read_only": 1
   },
   {
    "fieldname": "response_message",
    "fieldtype": "Small Text",
-   "label": "Response Message"
+   "label": "Response Message",
+   "read_only": 1
   },
   {
    "fieldname": "retry_count",
    "fieldtype": "Int",
-   "label": "Retry Count"
+   "label": "Retry Count",
+   "read_only": 1
   },
   {
    "fieldname": "sync_time",
    "fieldtype": "Datetime",
-   "label": "Sync Time"
+   "label": "Sync Time",
+   "read_only": 1
   },
   {
    "fieldname": "section_break_xyqy",
@@ -60,47 +65,51 @@
    "fieldname": "document_type",
    "fieldtype": "Link",
    "label": "Document Type",
-   "options": "DocType"
+   "options": "DocType",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.sync_type==\"Single Document\"",
    "fieldname": "document",
    "fieldtype": "Data",
-   "label": "Document"
+   "label": "Document",
+   "read_only": 1
   },
   {
    "depends_on": "eval:doc.sync_type==\"Bulk Import\"",
    "fieldname": "documents",
    "fieldtype": "Table",
    "label": "Documents",
-   "options": "Middleware Sync Log Document"
+   "options": "Middleware Sync Log Document",
+   "read_only": 1
   },
   {
    "fieldname": "sync_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Sync Type",
-   "options": "Single Document\nBulk Import"
+   "options": "Single Document\nBulk Import",
+   "read_only": 1
   },
   {
    "default": "0",
    "depends_on": "eval:doc.document_type==\"Item\" && doc.sync_type==\"Single Document\"",
    "fieldname": "is_variant",
    "fieldtype": "Check",
-   "label": "Is Variant"
+   "label": "Is Variant",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-07-10 14:42:30.008455",
+ "modified": "2026-07-16 11:30:03.694204",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware Sync Log",
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -112,7 +121,6 @@
    "write": 1
   },
   {
-   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
