@@ -108,17 +108,24 @@ def process_bulk_sync(items, payload=None, log_name=None):
         )
 
 
-def create_bulk_sync_log(item_codes):
+def create_bulk_sync_log(items):
+    documents = []
+
+    for item in items:
+        doc = frappe.get_doc("Item", item)
+
+        documents.append({
+            "document": item,
+            "is_variant": bool(doc.variant_of)
+        })
+
     log = frappe.get_doc({
         "doctype": "Middleware Sync Log",
         "event": "create",
         "sync_type": "Bulk Import",
         "status": "Pending",
         "document_type": "Item",
-        "documents": [
-            {"document": item_code}
-            for item_code in item_codes
-        ]
+        "documents": documents
     })
 
     log.insert(ignore_permissions=True)
