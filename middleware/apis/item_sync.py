@@ -195,7 +195,8 @@ def build_payload(doc, event):
             "status": "inactive" if doc.disabled else "active",
 
             "default_uom": doc.stock_uom,
-            "selling_price": get_selling_price(doc.item_code),
+            "selling_price": get_selling_price(doc),
+            "price_list": doc.active_price_list,
             "recommended_age": doc.recommended_age,
             "material": doc.material,
             "dimensions": doc.dimensions,
@@ -207,12 +208,12 @@ def build_payload(doc, event):
     }
 
 
-def get_selling_price(item_code):
+def get_selling_price(doc):
     return frappe.db.get_value(
         "Item Price",
         {
-            "item_code": item_code,
-            "price_list": "Standard Selling"
+            "item_code": doc.item_code,
+            "price_list": doc.active_price_list
         },
         "price_list_rate"
     )

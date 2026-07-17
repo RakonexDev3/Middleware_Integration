@@ -1,6 +1,6 @@
 frappe.listview_settings["Item"] = {
     onload(listview) {
-        listview.page.add_action_item(__("Bulk Sync"), async () => {
+        listview.page.add_action_item(__("Sync Item"), async () => {
             const items = listview.get_checked_items().map(d => d.name);
 
             const r = await frappe.call({
