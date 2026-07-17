@@ -25,7 +25,8 @@ fixtures = [
                     "column_break_spec",
                     "package_dimensions",
                     "package_weight",
-                    "enable_product_sync"
+                    "enable_product_sync",
+                    "active_price_list",
                 ]
             ]
         }
