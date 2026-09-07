@@ -203,6 +203,8 @@ def build_payload(doc, event):
             "product_weight": doc.product_weight,
             "package_dimensions": doc.package_dimensions,
             "package_weight": doc.package_weight,
+            "installation_type": doc.installation_type,
+            "installation_level": doc.installation_level if doc.installation_type else None,
             "attributes": attributes
         }
     }
