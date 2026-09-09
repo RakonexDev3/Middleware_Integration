@@ -67,7 +67,8 @@ def item_deleted(doc, method):
         data={
             "item_code": doc.item_code,
             "event": "delete",
-            "is_variant": bool(doc.variant_of)
+            "is_variant": bool(doc.variant_of),
+            "parent_sku": doc.variant_of
         },
         queue="short",
         enqueue_after_commit=True
@@ -88,10 +89,12 @@ def sync_item(data, log_name=None):
     else:
         if event == "delete":
             is_variant = data.get("is_variant", False)
+            parent_sku = data.get("parent_sku")
         else:
             is_variant = bool(frappe.db.get_value("Item", item_code, "variant_of"))
+            parent_sku = None
 
-        log = create_sync_log(item_code, event, is_variant=is_variant)
+        log = create_sync_log(item_code, event, is_variant=is_variant, parent_sku=parent_sku)
     
     endpoint = settings.get("item_sync_endpoint")
     token = settings.get_password("item_sync_authorization_token")
@@ -106,7 +109,8 @@ def sync_item(data, log_name=None):
             "event": "delete",
             "item": {
                 "SKU": item_code,
-                "is_variant": bool(log.is_variant)
+                "is_variant": bool(log.is_variant),
+                "parent_sku": log.parent_sku
             }
         }
     else:
@@ -140,7 +144,7 @@ def sync_item(data, log_name=None):
         )
 
 
-def create_sync_log(item_code, event, is_variant=False):
+def create_sync_log(item_code, event, is_variant=False, parent_sku=None):
     log = frappe.get_doc({
         "doctype": "Middleware Sync Log",
         "document_type": "Item",
@@ -148,6 +152,7 @@ def create_sync_log(item_code, event, is_variant=False):
         "event": event,
         "sync_type": "Single Document",
         "is_variant": is_variant,
+        "parent_sku": parent_sku,
         "status": "Pending"
     })
 
