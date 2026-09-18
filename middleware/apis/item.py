@@ -3,10 +3,8 @@ import frappe
 @frappe.whitelist()
 def installation_item_details(item_code=None):
     if not item_code:
-        item_code = frappe.local.form_dict
-
-    item_code = frappe.parse_json(item_code)
-
+        return {"error": "Item code is required."}
+    
     item = frappe.get_value("Item", item_code, ["item_code", "item_name", "stock_uom", "installation_type", "installation_level"], as_dict=True)
 
     level_time = frappe.get_value("Installation Level", item.installation_level, "estimated_time") if item.installation_level else None
