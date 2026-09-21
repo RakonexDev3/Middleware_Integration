@@ -23,7 +23,7 @@ def installation_item_details(item_code=None, delivery_zone=None):
         )
 
         team_names = [team for team in team_names if team in zone_teams]
-        zones = [delivery_zone]
+        zones = [delivery_zone] if team_names else []
 
     else:
         zone_records = frappe.get_all(
