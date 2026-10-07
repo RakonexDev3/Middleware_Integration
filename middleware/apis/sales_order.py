@@ -40,6 +40,7 @@ def create_sales_order(data=None):
             "customer": customer,
             "transaction_date": data.get("transaction_date"),
             "delivery_date": data.get("delivery_date"),
+            "sales_channel": data.get("sales_channel"),
             "items": items,
         }
     )
