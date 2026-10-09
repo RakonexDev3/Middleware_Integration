@@ -115,7 +115,7 @@ def sync_item(data, log_name=None):
         }
     else:
         doc = frappe.get_doc("Item", item_code)
-        payload = build_payload(doc, event)
+        payload = build_payload(doc, event, include_images=True)
 
     response = None
 
@@ -171,8 +171,9 @@ def update_sync_log(log, status, response=None):
     log.save(ignore_permissions=True)
 
 
-def build_payload(doc, event):
+def build_payload(doc, event, include_images=False):
     attributes = []
+    images = []
 
     if doc.variant_of:
         template = frappe.get_doc("Item", doc.variant_of)
@@ -181,6 +182,13 @@ def build_payload(doc, event):
             attributes.append({
                 "attribute": row.attribute,
                 "value": row.attribute_value
+            })
+    if include_images:
+        for row in doc.product_images:
+            if row.image_url:
+                images.append({
+                    "url": row.image_url,
+                    "alt_text": row.alt_text
             })
     
     return {
@@ -210,7 +218,8 @@ def build_payload(doc, event):
             "package_weight": doc.package_weight,
             "installation_type": doc.installation_type,
             "installation_level": doc.installation_level if doc.installation_type else None,
-            "attributes": attributes
+            "attributes": attributes,
+            "images": images if include_images else []
         }
     }
 
