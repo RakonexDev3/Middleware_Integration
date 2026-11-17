@@ -9,7 +9,9 @@
   "item_sync_endpoint",
   "item_sync_authorization_token",
   "bulk_sync_endpoint",
-  "bulk_sync_authorization_token"
+  "bulk_sync_authorization_token",
+  "column_break_dosv",
+  "enable_order_sync"
  ],
  "fields": [
   {
@@ -43,13 +45,23 @@
    "in_list_view": 1,
    "label": "Item Sync Authorization Token",
    "mandatory_depends_on": "eval:doc.enable_product_sync"
+  },
+  {
+   "fieldname": "column_break_dosv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_order_sync",
+   "fieldtype": "Check",
+   "label": "Enable Order Sync"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-07-13 11:53:16.353942",
+ "modified": "2026-11-17 10:59:15.963090",
  "modified_by": "Administrator",
  "module": "Middleware Integration",
  "name": "Middleware External Settings",

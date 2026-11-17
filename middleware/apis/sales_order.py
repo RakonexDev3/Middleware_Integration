@@ -52,9 +52,12 @@ from frappe.utils import now_datetime
 #     return {"sales_order": so_doc.name, "customer": customer}
 
 
-# @frappe.whitelist()
+@frappe.whitelist()
 def create_sales_order(data=None):
     """Create a Customer if needed, then create a Draft Sales Order."""
+
+    if frappe.db.get_single_value("Middleware External Settings", "enable_order_sync") is False:
+        return {"success": False, "message": "Order sync is disabled in Middleware External Settings."}
 
     if not data:
         data = frappe.local.form_dict
